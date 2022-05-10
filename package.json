@@ -1,0 +1,79 @@
+{
+  "name": "web3-frontend-template",
+  "private": true,
+  "description": "",
+  "license": "",
+  "sideEffects": false,
+  "scripts": {
+    "build": "run-s build:*",
+    "build:css": "npm run generate:css -- --minify",
+    "build:remix": "remix build",
+    "dev": "remix build && run-p dev:*",
+    "dev:css": "npm run generate:css -- --watch",
+    "dev:remix": "remix watch",
+    "dev:wrangler": "cross-env NODE_ENV=development wrangler pages dev ./public -b $(cat .env)",
+    "generate:css": "tailwindcss -o ./app/styles/tailwind.css",
+    "codegen": "node -r dotenv/config node_modules/.bin/gql-gen",
+    "start": "cross-env NODE_ENV=production npm run dev:wrangler",
+    "lint": "prettier --write 'app/**/{*.ts,*.tsx}' && eslint --fix --no-error-on-unmatched-pattern 'app/**/{*.ts,*.tsx}'",
+    "postinstall": "patch-package",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@headlessui/react": "^1.6.1",
+    "@rainbow-me/rainbowkit": "^0.1.0",
+    "@remix-run/cloudflare": "^1.4.3",
+    "@remix-run/cloudflare-pages": "^1.4.3",
+    "@remix-run/react": "^1.4.3",
+    "buffer": "^6.0.3",
+    "clsx": "^1.1.1",
+    "cross-env": "^7.0.3",
+    "date-fns": "^2.28.0",
+    "ethers": "^5.6.4",
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.2.0",
+    "graphql-tag": "^2.12.6",
+    "nprogress": "^0.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-hot-toast": "^2.2.0",
+    "tiny-invariant": "^1.2.0",
+    "wagmi": "^0.3.5"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.4.0",
+    "@graphql-codegen/cli": "^2.6.2",
+    "@graphql-codegen/typescript": "^2.4.8",
+    "@graphql-codegen/typescript-graphql-request": "^4.4.5",
+    "@graphql-codegen/typescript-operations": "^2.3.5",
+    "@remix-run/dev": "^1.4.3",
+    "@remix-run/eslint-config": "^1.4.3",
+    "@tailwindcss/forms": "^0.5.0",
+    "@types/nprogress": "^0.2.0",
+    "@types/react": "^17.0.24",
+    "@types/react-dom": "^17.0.9",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^8.13.0",
+    "eslint-config-prettier": "^8.5.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.4.1",
+    "npm-run-all": "^4.1.5",
+    "patch-package": "^6.4.7",
+    "prettier": "^2.6.2",
+    "prettier-plugin-tailwindcss": "^0.1.8",
+    "tailwindcss": "^3.0.23",
+    "typescript": "^4.5.5",
+    "wrangler": "beta"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "volta": {
+    "node": "16.7.0"
+  },
+  "lint-staged": {
+    "app/**/{*.ts,*.tsx}": "npm run lint"
+  }
+}
