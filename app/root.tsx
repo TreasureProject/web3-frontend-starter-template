@@ -16,10 +16,10 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { resolveValue, Toaster } from "react-hot-toast";
-import { chain, createClient, WagmiProvider } from "wagmi";
+import { chain, createClient, WagmiConfig, configureChains } from "wagmi";
+import { alchemyProvider } from "wagmi/providers/alchemy";
+import { publicProvider } from "wagmi/providers/public";
 import {
-  apiProvider,
-  configureChains,
   connectorsForWallets,
   getDefaultWallets,
   RainbowKitProvider,
@@ -81,7 +81,7 @@ export default function App() {
       configureChains(
         // Configure this to chains you want
         [chain.mainnet, chain.optimism, chain.polygon, chain.arbitrum],
-        [apiProvider.alchemy(ENV.ALCHEMY_KEY), apiProvider.fallback()]
+        [alchemyProvider({ alchemyId: ENV.ALCHEMY_KEY }), publicProvider()]
       ),
     [ENV.ALCHEMY_KEY]
   );
@@ -144,11 +144,11 @@ export default function App() {
         <Links />
       </head>
       <body className="antialiased">
-        <WagmiProvider client={client}>
+        <WagmiConfig client={client}>
           <RainbowKitProvider chains={chains}>
             <Outlet />
           </RainbowKitProvider>
-        </WagmiProvider>
+        </WagmiConfig>
         <Toaster position="bottom-left" reverseOrder={false} gutter={18}>
           {(t) => (
             <Transition
