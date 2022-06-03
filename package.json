@@ -39,7 +39,7 @@
     "react-dom": "^18.1.0",
     "react-hot-toast": "^2.2.0",
     "tiny-invariant": "^1.2.0",
-    "wagmi": "^0.4.3"
+    "wagmi": "^0.4.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.11.0",
