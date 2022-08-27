@@ -1,16 +1,16 @@
-diff --git a/node_modules/@remix-run/dev/compiler.js b/node_modules/@remix-run/dev/compiler.js
-index f975b71..29cb23d 100644
---- a/node_modules/@remix-run/dev/compiler.js
-+++ b/node_modules/@remix-run/dev/compiler.js
+diff --git a/node_modules/@remix-run/dev/dist/compiler.js b/node_modules/@remix-run/dev/dist/compiler.js
+index 9ce96d5..4bb8bc3 100644
+--- a/node_modules/@remix-run/dev/dist/compiler.js
++++ b/node_modules/@remix-run/dev/dist/compiler.js
 @@ -19,6 +19,7 @@ var fse = require('fs-extra');
  var debounce = require('lodash.debounce');
  var chokidar = require('chokidar');
  var nodeModulesPolyfill = require('@esbuild-plugins/node-modules-polyfill');
 +var nodeGlobalsPolyfill = require('@esbuild-plugins/node-globals-polyfill');
+ var esbuildPluginPnp = require('@yarnpkg/esbuild-plugin-pnp');
  var build$1 = require('./build.js');
  var config = require('./config.js');
- var warnings = require('./compiler/warnings.js');
-@@ -293,9 +294,9 @@ async function createBrowserBuild(config, options) {
+@@ -294,9 +295,9 @@ async function createBrowserBuild(config, options) {
    let externals = module$1.builtinModules.filter(mod => !dependencies$1.includes(mod));
    let fakeBuiltins = module$1.builtinModules.filter(mod => dependencies$1.includes(mod));
  
@@ -23,12 +23,12 @@ index f975b71..29cb23d 100644
  
    let entryPoints = {
      "entry.client": path__namespace.resolve(config.appDirectory, config.entryClientFile)
-@@ -308,7 +309,7 @@ async function createBrowserBuild(config, options) {
-     entryPoints[id] = path__namespace.resolve(config.appDirectory, config.routes[id].file) + "?browser";
+@@ -309,7 +310,7 @@ async function createBrowserBuild(config, options) {
+     entryPoints[id] = config.routes[id].file + "?browser";
    }
  
--  let plugins = [urlImportsPlugin.urlImportsPlugin(), mdx.mdxPlugin(config), browserRouteModulesPlugin.browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin.emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/), nodeModulesPolyfill.NodeModulesPolyfillPlugin()];
-+  let plugins = [urlImportsPlugin.urlImportsPlugin(), mdx.mdxPlugin(config), browserRouteModulesPlugin.browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin.emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/), nodeModulesPolyfill.NodeModulesPolyfillPlugin(), nodeGlobalsPolyfill.NodeGlobalsPolyfillPlugin()];
+-  let plugins = [urlImportsPlugin.urlImportsPlugin(), mdx.mdxPlugin(config), browserRouteModulesPlugin.browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin.emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/), nodeModulesPolyfill.NodeModulesPolyfillPlugin(), esbuildPluginPnp.pnpPlugin()];
++  let plugins = [urlImportsPlugin.urlImportsPlugin(), mdx.mdxPlugin(config), browserRouteModulesPlugin.browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin.emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/), nodeModulesPolyfill.NodeModulesPolyfillPlugin(), esbuildPluginPnp.pnpPlugin(), nodeGlobalsPolyfill.NodeGlobalsPolyfillPlugin()];
    return esbuild__namespace.build({
      entryPoints,
      outdir: config.assetsBuildDirectory,

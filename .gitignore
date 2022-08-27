@@ -2,6 +2,7 @@ node_modules
 
 /.cache
 /functions/\[\[path\]\].js*
+/functions/_assets
 /public/build
 .env
 
