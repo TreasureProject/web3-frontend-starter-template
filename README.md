@@ -9,20 +9,15 @@ This is an opiniated web3 frontend starter template from TreasureDAO.
 - GraphQL Codegen
 - wagmi
 - react-hot-toast
-- Cloudflare Pages (Deployment platform)
+- Deployment on fly.io
 
 ## Development
 
-You will be utilizing Wrangler for local development to emulate the Cloudflare runtime. This is already wired up in your package.json as the `dev` script:
-
 ```sh
-# generate tailwind css directory
-npm run generate:css
-# start the remix dev server and wrangler
 npm run dev
 ```
 
-Open up [http://127.0.0.1:8788](http://127.0.0.1:8788) and you should be ready to go!
+Open up localhost:3000 and you should be ready to go!
 
 ### Working with graphQL
 
@@ -49,12 +44,9 @@ Now you can use this in your loaders, where it will fetch from that endpoint and
 ex.
 
 ```ts
-import { getEnvVariable } from "~/utils/env";
 import { exchangeSdk } from "~/utils.api.server";
 
-export const loader: LoaderFunction = async ({ request, context }) => {
-  const exchangeUrl = getEnvVariable("EXCHANGE_ENDPOINT", context);
-
+export const loader: LoaderFunction = async () => {
   const sdk = exchangeSdk(url);
 
   return json<LoaderData>({
@@ -64,7 +56,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
 
 // then use it client like this:
 export default function Index() {
-  const data = useLoaderData<LoaderData>();
+  const data = useLoaderData<typeof loader>();
 
   return <div>{data.hello}</div>;
 }
@@ -72,8 +64,6 @@ export default function Index() {
 
 ## Deployment
 
-Cloudflare Pages are currently only deployable through their Git provider integrations.
+1. run `fly launch` and configure the repo for fly.io deployement
 
-If you don't already have an account, then [create a Cloudflare account here](https://dash.cloudflare.com/sign-up/pages) and after verifying your email address with Cloudflare, go to your dashboard and follow the [Cloudflare Pages deployment guide](https://developers.cloudflare.com/pages/framework-guides/deploy-anything).
-
-Configure the "Build command" should be set to `npm run build`, and the "Build output directory" should be set to `public`.
+2. `npm run deploy`
