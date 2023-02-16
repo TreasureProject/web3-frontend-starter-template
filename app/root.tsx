@@ -142,7 +142,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-slate-500">
+      <body className="antialiased">
         <WagmiConfig client={client}>
           <RainbowKitProvider chains={chains}>
             <Outlet />
