@@ -56,8 +56,6 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-type LoaderData = { ENV: Env };
-
 const strictEntries = <T extends Record<string, any>>(
   object: T
 ): [keyof T, T[keyof T]][] => {
@@ -74,14 +72,14 @@ function getPublicKeys(env: Env): Env {
   return publicKeys;
 }
 
-export const loader: LoaderFunction = async () => {
-  return json<LoaderData>({
+export const loader = async () => {
+  return json({
     ENV: getPublicKeys(process.env),
   });
 };
 
 export default function App() {
-  const { ENV } = useLoaderData<LoaderData>();
+  const { ENV } = useLoaderData<typeof loader>();
 
   const [{ client, chains }] = useState(() => {
     const testChains =
