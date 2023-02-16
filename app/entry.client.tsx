@@ -1,9 +1,28 @@
 import { RemixBrowser } from "@remix-run/react";
-import { hydrate } from "react-dom";
-import { Buffer } from "buffer";
+import { startTransition, StrictMode } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { Buffer } from "buffer-polyfill";
 
-// polyfill Buffer for client
-if (!window.Buffer) {
-  window.Buffer = Buffer;
+// Polyfills for connectors that use QR codes
+window.global = window.global ?? window;
+window.Buffer = window.Buffer ?? Buffer;
+window.process = window.process ?? { env: {} };
+
+function hydrate() {
+  startTransition(() => {
+    hydrateRoot(
+      document,
+      <StrictMode>
+        <RemixBrowser />
+      </StrictMode>
+    );
+  });
 }
-hydrate(<RemixBrowser />, document);
+
+if (typeof requestIdleCallback === "function") {
+  requestIdleCallback(hydrate);
+} else {
+  // Safari doesn't support requestIdleCallback
+  // https://caniuse.com/requestidlecallback
+  setTimeout(hydrate, 1);
+}

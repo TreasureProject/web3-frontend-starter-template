@@ -1,10 +1,9 @@
 node_modules
 
 /.cache
-/functions/\[\[path\]\].js*
-/functions/_assets
+/build
 /public/build
 .env
 
+
 /app/graphql/*.generated.ts
-/app/styles/tailwind.css

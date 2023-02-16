@@ -1,4 +1,4 @@
-import type { CloudFlareEnv, CloudFlareEnvVar } from "~/types";
+import type { Env, EnvVar } from "~/types";
 
 export {};
 
@@ -8,7 +8,7 @@ declare global {
    */
   interface Window {
     env: {
-      [key in CloudFlareEnvVar]: string;
+      [key in EnvVar]: string;
     };
   }
 
@@ -16,7 +16,7 @@ declare global {
     /**
      * Extend process.env with our custom environment variables.
      */
-    interface ProcessEnv extends CloudFlareEnv {
+    interface ProcessEnv extends Env {
       NODE_ENV: "development" | "production" | "test";
       PORT: string;
     }

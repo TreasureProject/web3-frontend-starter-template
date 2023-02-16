@@ -1,10 +1,10 @@
-import { useMemo, useEffect, Fragment } from "react";
+import { useMemo, useEffect, Fragment, useState } from "react";
 import type {
   LinksFunction,
   LoaderFunction,
   MetaFunction,
-} from "@remix-run/cloudflare";
-import { json } from "@remix-run/cloudflare";
+} from "@remix-run/node";
+import { json } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -14,23 +14,22 @@ import {
   useTransition,
   useFetchers,
   useLoaderData,
+  ScrollRestoration,
 } from "@remix-run/react";
 import { resolveValue, Toaster } from "react-hot-toast";
-import { chain, createClient, WagmiConfig, configureChains } from "wagmi";
+import { mainnet, createClient, configureChains, WagmiConfig } from "wagmi";
+import { optimism, arbitrum, polygon, arbitrumGoerli } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import {
   connectorsForWallets,
   getDefaultWallets,
   RainbowKitProvider,
-  wallet,
 } from "@rainbow-me/rainbowkit";
+import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
 
 import NProgress from "nprogress";
 
-import { getEnvVariable } from "./utils/env";
-
-import type { CloudFlareEnv, CloudFlareEnvVar, Optional } from "./types";
 import { Transition } from "@headlessui/react";
 
 import {
@@ -43,9 +42,7 @@ import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
 import styles from "./styles/tailwind.css";
 import nProgressStyles from "./styles/nprogress.css";
 
-type RootLoaderData = {
-  ENV: Partial<CloudFlareEnv>;
-};
+import type { Env } from "./types";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -59,66 +56,65 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
 });
 
-export const loader: LoaderFunction = async ({ context }) => {
-  const env = context as CloudFlareEnv;
-  return json<RootLoaderData>({
-    ENV: Object.keys(env).reduce(
-      (envVars, key) => ({
-        ...envVars,
-        [key]: getEnvVariable(
-          key as CloudFlareEnvVar,
-          context as Optional<CloudFlareEnv>
-        ),
-      }),
-      {}
-    ),
+type LoaderData = { ENV: Env };
+
+const strictEntries = <T extends Record<string, any>>(
+  object: T
+): [keyof T, T[keyof T]][] => {
+  return Object.entries(object);
+};
+
+function getPublicKeys(env: Env): Env {
+  const publicKeys = {} as Env;
+  for (const [key, value] of strictEntries(env)) {
+    if (key.startsWith("PUBLIC_")) {
+      publicKeys[key] = value;
+    }
+  }
+  return publicKeys;
+}
+
+export const loader: LoaderFunction = async () => {
+  return json<LoaderData>({
+    ENV: getPublicKeys(process.env),
   });
 };
 
 export default function App() {
+  const { ENV } = useLoaderData<LoaderData>();
+
+  const [{ client, chains }] = useState(() => {
+    const testChains =
+      ENV.PUBLIC_ENABLE_TESTNETS === "true" ? [arbitrumGoerli] : [];
+
+    const { chains, provider } = configureChains(
+      // Configure this to chains you want
+      [mainnet, optimism, polygon, arbitrum, ...testChains],
+      [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY }), publicProvider()]
+    );
+
+    const { wallets } = getDefaultWallets({
+      appName: "Template App",
+      chains,
+    });
+
+    const connectors = connectorsForWallets([
+      ...wallets,
+      {
+        groupName: "Others",
+        wallets: [trustWallet({ chains }), ledgerWallet({ chains })],
+      },
+    ]);
+
+    const client = createClient({
+      autoConnect: true,
+      connectors,
+      provider,
+    });
+
+    return { client, chains };
+  });
   const transition = useTransition();
-  const { ENV } = useLoaderData<RootLoaderData>();
-
-  const { chains, provider } = useMemo(
-    () =>
-      configureChains(
-        // Configure this to chains you want
-        [chain.mainnet, chain.optimism, chain.polygon, chain.arbitrum],
-        [alchemyProvider({ apiKey: ENV.ALCHEMY_KEY }), publicProvider()]
-      ),
-    [ENV.ALCHEMY_KEY]
-  );
-
-  const { wallets } = useMemo(
-    () =>
-      getDefaultWallets({
-        appName: "Template App",
-        chains,
-      }),
-    [chains]
-  );
-
-  const connectors = useMemo(
-    () =>
-      connectorsForWallets([
-        ...wallets,
-        {
-          groupName: "Others",
-          wallets: [wallet.trust({ chains }), wallet.ledger({ chains })],
-        },
-      ]),
-    [chains, wallets]
-  );
-
-  const client = useMemo(
-    () =>
-      createClient({
-        autoConnect: true,
-        connectors,
-        provider,
-      }),
-    [connectors, provider]
-  );
 
   const fetchers = useFetchers();
 
@@ -146,7 +142,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="antialiased">
+      <body className="bg-slate-500">
         <WagmiConfig client={client}>
           <RainbowKitProvider chains={chains}>
             <Outlet />
@@ -201,13 +197,8 @@ export default function App() {
           )}
         </Toaster>
         <Scripts />
-        {ENV.NODE_ENV === "development" ? <LiveReload /> : null}
-        {/* env available anywhere on your app */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.env = ${JSON.stringify(ENV)};`,
-          }}
-        />
+        <ScrollRestoration />
+        <LiveReload />
       </body>
     </html>
   );

@@ -1,14 +1,17 @@
-/**
- * @type {import('@remix-run/dev').AppConfig}
- */
+/** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
-  serverBuildTarget: "cloudflare-pages",
-  server: "./server.js",
-  devServerBroadcastDelay: 1000,
-  ignoredRouteFiles: [".*"],
-  serverDependenciesToBundle: ["@rainbow-me"],
+  ignoredRouteFiles: ["**/.*"],
+  future: {
+    unstable_tailwind: true,
+  },
+  serverDependenciesToBundle: [
+    "@rainbow-me/rainbowkit",
+    "@rainbow-me/rainbowkit/wallets",
+    /^@?wagmi.*/,
+    /.*/,
+  ],
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
-  // serverBuildPath: "functions/[[path]].js",
+  // serverBuildPath: "build/index.js",
   // publicPath: "/build/",
 };
