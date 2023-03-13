@@ -8,8 +8,9 @@ This is an opiniated web3 frontend starter template from TreasureDAO.
 - Tailwind CSS
 - GraphQL Codegen
 - wagmi
-- react-hot-toast
+- sonner (for toaster)
 - Deployment on fly.io
+- https://ui.shadcn.com/ for UI components using Radix UI and Tailwind CSS
 
 ## Development
 
@@ -35,8 +36,9 @@ import { GraphQLClient } from "graphql-request";
 import { getSdk as getExchangeSdk } from "~/graphql/exchange.generated";
 
 // Passing URL here, since you'd want to have different endpoints depending on production or not
-export const exchangeSdk = (url: string) =>
-  getExchangeSdk(new GraphQLClient(url, { fetch }));
+export const exchangeSdk = getExchangeSdk(
+  new GraphQLClient(process.env.EXCHANGE_ENDPOINT as string)
+);
 ```
 
 Now you can use this in your loaders, where it will fetch from that endpoint and server side render your app.
@@ -47,10 +49,8 @@ ex.
 import { exchangeSdk } from "~/utils.api.server";
 
 export const loader: LoaderFunction = async () => {
-  const sdk = exchangeSdk(url);
-
   return json<LoaderData>({
-    data: await sdk.hello(),
+    data: await exchangeSdk.hello(),
   });
 };
 
