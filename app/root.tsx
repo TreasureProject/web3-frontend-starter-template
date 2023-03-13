@@ -1,9 +1,5 @@
-import { useMemo, useEffect, Fragment, useState } from "react";
-import type {
-  LinksFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
+import { useMemo, useEffect, useState } from "react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -16,7 +12,7 @@ import {
   useLoaderData,
   ScrollRestoration,
 } from "@remix-run/react";
-import { resolveValue, Toaster } from "react-hot-toast";
+import { Toaster } from "sonner";
 import { mainnet, createClient, configureChains, WagmiConfig } from "wagmi";
 import { optimism, arbitrum, polygon, arbitrumGoerli } from "wagmi/chains";
 import { alchemyProvider } from "wagmi/providers/alchemy";
@@ -29,14 +25,6 @@ import {
 import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
 
 import NProgress from "nprogress";
-
-import { Transition } from "@headlessui/react";
-
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  SpinnerIcon,
-} from "./components/Icons";
 
 import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
 import styles from "./styles/tailwind.css";
@@ -146,54 +134,8 @@ export default function App() {
             <Outlet />
           </RainbowKitProvider>
         </WagmiConfig>
-        <Toaster position="bottom-left" reverseOrder={false} gutter={18}>
-          {(t) => (
-            <Transition
-              show={t.visible}
-              as={Fragment}
-              enter="transform ease-out duration-300 transition"
-              enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-              enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5">
-                <div className="p-4">
-                  <div className="flex items-center justify-center">
-                    <div className="flex-shrink-0">
-                      {(() => {
-                        switch (t.type) {
-                          case "success":
-                            return (
-                              <CheckCircleIcon className="h-6 w-6 text-green-500" />
-                            );
-                          case "error":
-                            return (
-                              <ExclamationCircleIcon className="h-6 w-6 text-red-500" />
-                            );
-                          case "loading":
-                            return (
-                              <SpinnerIcon className="h-6 w-6 animate-spin fill-gray-800 text-yellow-500" />
-                            );
-                          default:
-                            return (
-                              <CheckCircleIcon className="h-6 w-6 text-yellow-500" />
-                            );
-                        }
-                      })()}
-                    </div>
-                    <div className="ml-3 w-0 flex-1">
-                      <div className="text-sm text-white">
-                        {resolveValue(t.message, t)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Transition>
-          )}
-        </Toaster>
+        <Toaster richColors />
+
         <Scripts />
         <ScrollRestoration />
         <LiveReload />
