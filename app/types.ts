@@ -1,8 +1,8 @@
 export type EnvVar =
+  | "API_URL"
   | "PUBLIC_ALCHEMY_KEY"
-  | "PUBLIC_NODE_ENV"
   | "PUBLIC_ENABLE_TESTNETS"
-  | "EXCHANGE_ENDPOINT";
+  | "PUBLIC_WALLET_CONNECT_PROJECT_ID";
 
 export type Env = {
   [key in EnvVar]: string;

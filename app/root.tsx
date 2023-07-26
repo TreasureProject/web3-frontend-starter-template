@@ -1,36 +1,31 @@
-import { useMemo, useEffect, useState } from "react";
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
+import type { LinksFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import type { V2_MetaFunction } from "@remix-run/react";
 import {
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
-  useTransition,
+  ScrollRestoration,
   useFetchers,
   useLoaderData,
-  ScrollRestoration,
+  useTransition,
 } from "@remix-run/react";
-import { Toaster } from "sonner";
-import { mainnet, createClient, configureChains, WagmiConfig } from "wagmi";
-import { optimism, arbitrum, polygon, arbitrumGoerli } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
-import {
-  connectorsForWallets,
-  getDefaultWallets,
-  RainbowKitProvider,
-} from "@rainbow-me/rainbowkit";
-import { trustWallet, ledgerWallet } from "@rainbow-me/rainbowkit/wallets";
-
 import NProgress from "nprogress";
+import { useEffect, useMemo, useState } from "react";
+import { Toaster } from "sonner";
+import { WagmiConfig } from "wagmi";
+import { arbitrum, arbitrumGoerli } from "wagmi/chains";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 
-import rainbowStyles from "@rainbow-me/rainbowkit/styles.css";
-import styles from "./styles/tailwind.css";
+import { APP_NAME } from "./const";
 import nProgressStyles from "./styles/nprogress.css";
-
+import styles from "./styles/tailwind.css";
 import type { Env } from "./types";
+import { createWagmiConfig } from "./utils/wagmi";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
@@ -38,11 +33,11 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: rainbowStyles },
 ];
 
-export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "Web3 Frontend Starter Template",
-  viewport: "width=device-width,initial-scale=1",
-});
+export const meta: V2_MetaFunction = () => [
+  { charSet: "utf-8" },
+  { viewport: "width=device-width,initial-scale=1" },
+  { title: APP_NAME },
+];
 
 const strictEntries = <T extends Record<string, any>>(
   object: T
@@ -69,41 +64,20 @@ export const loader = async () => {
 export default function App() {
   const { ENV } = useLoaderData<typeof loader>();
 
-  const [{ client, chains }] = useState(() => {
-    const testChains =
-      ENV.PUBLIC_ENABLE_TESTNETS === "true" ? [arbitrumGoerli] : [];
-
-    const { chains, provider } = configureChains(
-      // Configure this to chains you want
-      [mainnet, optimism, polygon, arbitrum, ...testChains],
-      [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY }), publicProvider()]
+  const [{ chains, config: wagmiConfig }] = useState(() => {
+    return createWagmiConfig(
+      ENV.PUBLIC_ENABLE_TESTNETS === "true"
+        ? [arbitrumGoerli, arbitrum]
+        : [arbitrum],
+      ENV.PUBLIC_ALCHEMY_KEY
+        ? [alchemyProvider({ apiKey: ENV.PUBLIC_ALCHEMY_KEY })]
+        : [],
+      ENV.PUBLIC_WALLET_CONNECT_PROJECT_ID
     );
-
-    const { wallets } = getDefaultWallets({
-      appName: "Template App",
-      chains,
-    });
-
-    const connectors = connectorsForWallets([
-      ...wallets,
-      {
-        groupName: "Others",
-        wallets: [trustWallet({ chains }), ledgerWallet({ chains })],
-      },
-    ]);
-
-    const client = createClient({
-      autoConnect: true,
-      connectors,
-      provider,
-    });
-
-    return { client, chains };
   });
+
   const transition = useTransition();
-
   const fetchers = useFetchers();
-
   const state = useMemo<"idle" | "loading">(
     function getGlobalState() {
       const states = [
@@ -129,7 +103,7 @@ export default function App() {
         <Links />
       </head>
       <body className="antialiased">
-        <WagmiConfig client={client}>
+        <WagmiConfig config={wagmiConfig}>
           <RainbowKitProvider chains={chains}>
             <Outlet />
           </RainbowKitProvider>

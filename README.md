@@ -33,11 +33,11 @@ Something like this:
 ```tsx
 import { GraphQLClient } from "graphql-request";
 
-import { getSdk as getExchangeSdk } from "~/graphql/exchange.generated";
+import { getSdk } from "~/graphql/queries.generated";
 
 // Passing URL here, since you'd want to have different endpoints depending on production or not
-export const exchangeSdk = getExchangeSdk(
-  new GraphQLClient(process.env.EXCHANGE_ENDPOINT as string)
+export const sdk = getSdk(
+  new GraphQLClient(process.env.API_URL as string)
 );
 ```
 
@@ -46,11 +46,11 @@ Now you can use this in your loaders, where it will fetch from that endpoint and
 ex.
 
 ```ts
-import { exchangeSdk } from "~/utils.api.server";
+import { sdk } from "~/utils.api.server";
 
 export const loader: LoaderFunction = async () => {
   return json<LoaderData>({
-    data: await exchangeSdk.hello(),
+    data: await sdk.hello(),
   });
 };
 

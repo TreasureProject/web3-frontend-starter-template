@@ -1,9 +1,9 @@
-overwrite: true
-generates:
-  ./app/graphql/exchange.generated.ts:
-    schema: ${EXCHANGE_ENDPOINT}
-    documents: "./app/graphql/app.queries.ts"
-    plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-graphql-request"
+# overwrite: true
+# generates:
+#   ./app/generated/queries.ts:
+#     schema: ${API_URL}
+#     documents: "./graphql/queries.graphql.ts"
+#     plugins:
+#       - "typescript"
+#       - "typescript-operations"
+#       - "typescript-graphql-request"
